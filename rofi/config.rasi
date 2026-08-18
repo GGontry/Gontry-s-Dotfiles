@@ -1,0 +1,51 @@
+* {
+  bg-color: rgba(0, 0, 0, 0.5);
+  br-color: #ffffff;
+}
+
+configuration {
+  show-icons: true;
+  display-drun: "Search";
+}
+
+window {
+  width: 500px;
+  background-color: @bg-color;
+  border: 1px;
+  border-color: @br-color;
+}
+
+inputbar {
+  background-color: transparent;
+  border: 1px;
+  border-color: @br-color;
+  color: white;
+}
+
+prompt {
+  background-color: transparent;
+  color: white;
+}
+
+entry {
+  background-color: transparent;
+  color: white;
+}
+
+listview {
+  background-color: transparent;
+  scrollbar: false;
+}
+
+element normal.normal,
+element alternate.normal {
+    background-color: transparent;
+    text-color:       white;
+}
+
+element selected.normal {
+  background-color: white;
+  border: 1px;
+  border-color: @br-color;
+  text-color: black;
+}

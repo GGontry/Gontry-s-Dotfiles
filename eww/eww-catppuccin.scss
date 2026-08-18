@@ -1,0 +1,211 @@
+// Catppuccin Mocha palette
+$bg:            #1e1e2e;
+$bg-alt:        #181825;
+$surface:       #313244;
+$surface-bright:#45475a;
+$fg:            #cdd6f4;
+$muted:         #a6adc8;
+
+$red:   #f38ba8;
+$mauve: #cba6f7;
+$green: #a6e3a1;
+$blue:  #89b4fa;
+$peach: #fab387;
+$yellow:#f9e2af;
+
+* {
+  all: unset; // Reset default styles
+  font-family: "JetBrainsMono Nerd Font", "sans-serif";
+}
+
+.clock, .sys_info, .tray {
+  background-color: $bg;
+  color: $fg;
+  padding: 4px 12px;
+  border-radius: 10px;
+}
+
+// Top bar styles
+.cpu-label { color: $red; margin-right: 5px; }
+.cpu-freq-label { color: $mauve; }
+.cpu-temp-label { color: $red; }
+.ram-label { color: $green; }
+.gpu-label { color: $blue; }
+.gpu-temp-label { color: $muted; }
+.vram-label { color: $peach; }
+.disk-label { color: $yellow; }
+
+// Sidebar (left tab) styles
+.sidebar {
+  background-color: transparent;
+  padding: 1px;
+}
+
+.sidebar_inner {
+  background-color: $bg;
+  border: 1px solid $surface;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.sidebar_section {
+  background-color: $bg-alt;
+  border: 1px solid $surface;
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.sidebar_section_title { font-size: 12px; color: $muted; }
+.sidebar_space { background-color: $bg-alt; border-radius: 10px; }
+
+.switcher_row {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  &:hover { background-color: $surface; }
+  &.focused {
+    background-color: $surface;
+    border-color: $blue;
+  }
+}
+
+.switcher_item {
+  background-color: transparent;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.switcher_close {
+  color: $muted;
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 2px 6px;
+  &:hover { color: $red; background-color: $surface-bright; }
+}
+
+.switcher_marker { color: $muted; }
+.switcher_row.focused .switcher_marker { color: $blue; }
+.switcher_title { color: $fg; font-size: 13px; }
+.switcher_app { color: $muted; font-size: 11px; }
+
+// Sidebar scrollbar
+.sidebar_scroll scrollbar {
+  background-color: transparent;
+  border: none;
+}
+.sidebar_scroll scrollbar slider {
+  background-color: $surface;
+  border-radius: 4px;
+  min-width: 4px;
+  min-height: 20px;
+}
+
+// Music player (top of sidebar) styles
+.media {
+  background-color: $bg-alt;
+  border: 1px solid $surface;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.media_status { font-size: 11px; color: $muted; }
+.media_title { font-size: 14px; color: $fg; font-weight: bold; }
+.media_artist { font-size: 12px; color: $muted; }
+
+.media_time { font-size: 11px; color: $muted; }
+
+.media_progress progressbar {
+  background-color: transparent;
+  border: none;
+}
+.media_progress progressbar trough {
+  background-color: $surface;
+  border-radius: 4px;
+  min-height: 6px;
+  min-width: 40px;
+}
+.media_progress progressbar trough progress {
+  background-color: $blue;
+  border-radius: 4px;
+  min-height: 6px;
+}
+
+.media_controls { margin-top: 4px; }
+.media_btn {
+  font-size: 20px;
+  color: $fg;
+  border-radius: 8px;
+  padding: 6px 14px;
+  transition: 200ms;
+  &:hover { background-color: $surface; }
+  &.play {
+    font-size: 24px;
+    color: $bg;
+    background-color: $blue;
+  }
+}
+
+// Volume control (below music player) styles
+.volume {
+  background-color: $bg-alt;
+  border: 1px solid $surface;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.volume_icon {
+  font-size: 18px;
+  color: $fg;
+  border-radius: 6px;
+  padding: 4px 8px;
+  transition: 200ms;
+  &:hover { background-color: $surface; }
+  &.muted { color: $muted; }
+}
+
+.volume_label { font-size: 12px; color: $muted; }
+
+.volume_slider trough {
+  background-color: $surface;
+  border-radius: 4px;
+  min-height: 6px;
+  min-width: 40px;
+}
+.volume_slider trough highlight {
+  background-color: $blue;
+  border-radius: 4px;
+  min-height: 6px;
+}
+.volume_slider slider {
+  background-color: $blue;
+  border-radius: 50%;
+  min-width: 12px;
+  min-height: 12px;
+  margin: -3px 0;
+}
+
+// Tooltip styles (the * { all: unset } leaves them without a background)
+tooltip {
+  background-color: $bg;
+  color: $fg;
+  border: 1px solid $surface;
+  border-radius: 8px;
+  padding: 6px 10px;
+  &.background { background-color: $bg; }
+}
+tooltip label { color: $fg; }
+
+// Menu styles (right-click on tray items)
+menu {
+  background-color: $bg;
+  color: $fg;
+  border: 1px solid $surface;
+  border-radius: 8px;
+  padding: 4px;
+  menuitem {
+    color: $fg;
+    padding: 6px 12px;
+    border-radius: 6px;
+    &:hover { background-color: $surface; }
+  }
+  separator { background-color: $surface; }
+}

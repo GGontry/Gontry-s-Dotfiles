@@ -1,0 +1,131 @@
+//----------KEYBOARD----------\\
+
+input {
+  keyboard {
+    xkb {
+      layout "latam"
+    }
+  }
+}
+
+cursor {
+  xcursor-theme "sgi"
+  xcursor-size 5
+}
+
+//----------OUTPUTS---------\\
+output "DP-1" {
+  mode "1920x1080@240"
+  position x=0 y=0
+  focus-at-startup
+  backdrop-color "#000000"
+
+  hot-corners {
+    off
+  }
+}
+
+output "HDMI-A-1" {
+  mode "1920x1080@100"
+  position x=0 y=0
+  focus-at-startup
+  backdrop-color "#000000"
+
+  hot-corners {
+    off
+  }
+}
+
+//----------KEYBINDS----------\\
+
+binds {
+  // Apps
+  Mod+T { spawn "kitty"; }
+  Mod+B { spawn-sh "zen"; }
+  Mod+E { spawn "thunar"; }
+  Mod+C { spawn-sh "rofi -show drun"; }
+  Mod+N { spawn "smile"; }
+  Mod+K { spawn-sh "./.scripts/Rofi/rofi-wallpaper-selector.sh"; }
+  Mod+H { spawn "flameshot" "gui"; }
+  Mod+P { spawn "prismlauncher"; }
+  Mod+Tab { spawn-sh "~/.config/eww/scripts/toggle_sidebar.sh"; }
+  Mod+Shift+S { spawn "sh" "-c" "grim -g \"$(slurp)\" - | satty --filename - --fullscreen --output-filename ~/Pictures/Screenshots/satty-%Y%m%d-%H%M%S.png"; }
+
+  // General
+  Mod+Alt+Q { close-window; }
+  Mod+F { toggle-window-floating; }
+  Mod+M { maximize-column; }
+  Mod+L { fullscreen-window; }
+  Mod+G { toggle-overview; }
+
+    // Focus windows and workspaces
+  Mod+W { focus-workspace-up; }
+  Mod+S { focus-workspace-down; }
+  Mod+D { focus-column-right; }
+  Mod+A { focus-column-left; }
+
+  Mod+Mod5+W { set-window-height "-10%"; }
+  Mod+Mod5+S { set-window-height "+10%"; }
+  Mod+Mod5+D { set-column-width "+10%"; }
+  Mod+Mod5+A { set-column-width "-10%"; }
+
+  // Move windows
+  Mod+Alt+D { move-column-right; }
+  Mod+Alt+A { move-column-left; }
+
+  // Clipboard
+  Mod+V { spawn "sh" "-c" "cliphist list | rofi -dmenu | cliphist decode | wl-copy"; }
+}
+
+//----------AUTOSTART----------\\
+
+spawn-at-startup "xwayland-satellite"
+spawn-at-startup "dbus-update-activation-environment" "--all"
+spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
+spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
+spawn-at-startup "mako"
+spawn-at-startup "sh" "-c" "eww daemon; ~/.config/eww/scripts/open_bars.sh"
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP=niri"
+spawn-at-startup "noctalia"
+
+//----------LAYOUT----------\\
+
+prefer-no-csd
+layout {
+  gaps 8
+
+  border {
+    width 1
+    active-color "#ffffff"
+    inactive-color "#444444"
+  }
+
+   focus-ring {
+    width 0
+  }
+}
+
+overview {
+    backdrop-color "#000000"
+}
+
+// Disable background
+window-rule {
+  geometry-corner-radius 0
+  draw-border-with-background false
+}
+
+// Transparency
+window-rule {
+  match app-id="prismlauncher"
+  match app-id="vesktop"
+  match app-id="tauon"
+  opacity 0.70
+}
+
+window-rule {
+  match app-id="smile"
+  open-floating true
+}
+
+//include "noctalia.kdl"

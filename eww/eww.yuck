@@ -1,0 +1,220 @@
+;; ------------------ VARIABLES ------------------ ;;
+
+;; All system metrics in one poll (see scripts/system_metrics.sh)
+(defpoll sys_metrics :interval "2s"
+  "~/.config/eww/scripts/system_metrics.sh")
+
+;; Time
+(defpoll time :interval "1s"
+  "date '+%I:%M:%S %p'")
+
+;; Open windows (from niri), updated instantly on window/focus events
+(deflisten open_windows :initial "[]"
+  "~/.config/eww/scripts/open_windows.sh")
+
+;; Sidebar visibility (drives the slide-in animation)
+(defvar sidebar_open false)
+
+;; Active MPRIS media player metadata (see scripts/media_info.sh)
+(defpoll media :interval "1s"
+  "~/.config/eww/scripts/media_info.sh")
+
+;; MPRIS status, updated instantly on play/pause (see scripts/media_status.sh)
+(deflisten media_status :initial ""
+  "~/.config/eww/scripts/media_status.sh")
+
+;; System volume (see scripts/volume_info.sh)
+(defpoll volume :interval "500ms"
+  "~/.config/eww/scripts/volume_info.sh")
+
+;; ------------------ WIDGETS ------------------ ;;
+
+(defwidget clock []
+  (box :class "clock"
+    (label :text "󱑂 ${time}")))
+
+(defwidget tray []
+  (box :class "tray"
+    (systray :orientation "h"
+             :spacing 5
+             :icon-size 20)))
+
+;; Complete System Information Widget (CPU, RAM, GPU, VRAM, DISK)
+(defwidget system_info []
+  (box :class "sys_info"
+       :orientation "h"
+       :space-evenly false
+       :spacing 14
+
+    ;; CPU Monitoring
+    (box :class "sys-cpu" :space-evenly false :spacing 4
+      (label :text " ${sys_metrics.cpu_usage}%" :class "cpu-label" :tooltip "CPU Usage")
+      (label :text "@ ${sys_metrics.cpu_freq}GHz" :class "cpu-freq-label" :tooltip "CPU Frequency")
+      (label :text "(${sys_metrics.cpu_temp}°C)" :class "cpu-temp-label" :tooltip "CPU Temperature"))
+
+    ;; RAM Monitoring
+    (box :class "sys-ram" :space-evenly false :spacing 4
+      (label :text " ${sys_metrics.ram_usage}%" :class "ram-label" :tooltip "RAM Usage"))
+
+    ;; AMD GPU Monitoring
+    (box :class "sys-gpu" :space-evenly false :spacing 4
+      (label :text "󰢮 ${sys_metrics.gpu_usage}%" :class "gpu-label" :tooltip "GPU Usage")
+      (label :text "(${sys_metrics.gpu_temp}°C)" :class "gpu-temp-label" :tooltip "GPU Temperature"))
+
+    ;; AMD VRAM Monitoring
+    (box :class "sys-vram" :space-evenly false :spacing 4
+      (label :text "󰾆 ${sys_metrics.vram_usage}%" :class "vram-label" :tooltip "VRAM Usage"))
+
+    ;; Disk Space Monitoring
+    (box :class "sys-disk" :space-evenly false :spacing 4
+      (label :text "󰋊 ${sys_metrics.disk_usage}%" :class "disk-label" :tooltip "Disk Usage (/)"))))
+
+;; Music player (MPRIS via playerctl), at the top of the sidebar
+(defwidget media []
+  (box :class "media"
+       :orientation "v"
+       :space-evenly false
+       :spacing 6
+    (box :class "media_info"
+         :orientation "v"
+         :space-evenly false
+         :spacing 2
+      (label :text {media_status == "Playing" ? "󰐊  Now Playing" : (media_status == "Paused" ? "󰏤  Paused" : "󰝛  No Media")}
+             :class "media_status" :xalign 0)
+      (label :text {media.title != "" ? media.title : "Nothing playing..."}
+             :class "media_title" :xalign 0 :limit-width 32 :show-truncated true)
+      (label :text {media.artist != "" ? media.artist : "—"}
+             :class "media_artist" :xalign 0 :limit-width 32 :show-truncated true))
+    (box :class "media_bar"
+         :orientation "h"
+         :space-evenly false
+         :spacing 8
+      (label :text {media.pos_str != "" ? media.pos_str : "0:00"} :class "media_time")
+      (progress :class "media_progress" :value {media.pct} :hexpand true :valign "center")
+      (label :text {media.len_str != "" ? media.len_str : "0:00"} :class "media_time"))
+    (box :class "media_controls"
+         :orientation "h"
+         :space-evenly true
+      (button :class "media_btn" :onclick "playerctl previous" :tooltip "Previous" "󰒮")
+      (button :class {media_status == "Playing" ? "media_btn play" : "media_btn"}
+              :onclick "playerctl play-pause"
+              :tooltip "Play / Pause"
+              {media_status == "Playing" ? "󰏤" : "󰐊"})
+      (button :class "media_btn" :onclick "playerctl next" :tooltip "Next" "󰒭"))))
+
+;; Volume control (default audio sink via wpctl), below the music player
+(defwidget volume_ctl []
+  (box :class "volume"
+       :orientation "v"
+       :space-evenly false
+       :spacing 6
+    (box :class "volume_header"
+         :orientation "h"
+         :space-evenly false
+         :spacing 8
+      (button :class {volume.muted ? "volume_icon muted" : "volume_icon"}
+              :onclick "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+              :tooltip "Mute"
+              {volume.muted ? "󰝟" : (volume.volume >= 50 ? "󰕾" : (volume.volume > 0 ? "󰕿" : "󰝟"))})
+      (label :text "${volume.volume}%" :class "volume_label" :hexpand true :xalign 1))
+    (scale :class "volume_slider"
+           :orientation "h"
+           :min 0
+           :max 100
+           :value {volume.volume}
+           :draw-value false
+           :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")))
+
+;; Sidebar (left tab): media player + volume + open apps list + space for future widgets
+(defwidget sidebar []
+  (box :class "sidebar"
+       :orientation "h"
+       :space-evenly false
+    (revealer :transition "slideleft"
+              :duration "300ms"
+              :reveal sidebar_open
+              :vexpand true
+      (box :class "sidebar_inner"
+           :orientation "v"
+           :space-evenly false
+           :spacing 12
+           :width 478
+           :vexpand true
+        ;; Music player at the top
+        (media)
+
+        ;; Volume control below the player
+        (volume_ctl)
+
+        ;; Reserved space for future widgets
+        (box :class "sidebar_space" :height 410)
+
+        ;; Open apps, ancladas abajo, con scroll si hay muchas
+        (box :class "sidebar_section"
+             :orientation "v"
+             :space-evenly false
+             :spacing 6
+             :vexpand true
+          (label :text "Apps (${arraylength(open_windows)})" :class "sidebar_section_title")
+          (scroll :class "sidebar_scroll"
+                  :vscroll true
+                  :hscroll false
+                  :vexpand true
+            (box :class "sidebar_apps"
+                 :orientation "v"
+                 :space-evenly false
+                 :spacing 4
+              (for win in open_windows
+                (box :class {win.is_focused ? "switcher_row focused" : "switcher_row"}
+                     :orientation "h"
+                     :space-evenly false
+                     :spacing 4
+                  (button :class "switcher_item"
+                          :hexpand true
+                          :onclick "niri msg action focus-window --id ${win.id}"
+                    (box :orientation "h"
+                         :space-evenly false
+                         :spacing 8
+                      (label :text {win.is_focused ? "●" : "○"} :class "switcher_marker")
+                      (label :text "${win.title}" :class "switcher_title" :hexpand true :xalign 0 :limit-width 16)
+                      (label :text "${win.app_id}" :class "switcher_app" :xalign 1 :limit-width 6)))
+                  (button :class "switcher_close"
+                          :onclick "niri msg action close-window --id ${win.id}"
+                          :tooltip "Close ${win.title}"
+                          "󰅖"))))))))))
+
+;; ------------------ LAYOUTS ------------------ ;;
+
+(defwidget bar_layout []
+  (centerbox :orientation "h"
+    (box :halign "start" :space-evenly false :spacing 10 (tray))
+    (box :halign "center" (clock))
+    (box :halign "end" :space-evenly false :spacing 10 (system_info))))
+
+;; ------------------ WINDOWS ------------------ ;;
+
+(defwindow bar [monitor]
+  :monitor monitor
+  :geometry (geometry :x "0%"
+                      :y "3px"
+                      :width "99.1%"
+                      :height "30px"
+                      :anchor "top center")
+  :stacking "fg"
+  :exclusive true
+  :windowtype "dock"
+  :wm-ignore false
+  (bar_layout))
+
+(defwindow sidebar [monitor]
+  :monitor monitor
+  :geometry (geometry :x "6px"
+                      :y "35px"
+                      :width "480px"
+                      :height "1045px"
+                      :anchor "left bottom")
+  :stacking "overlay"
+  :exclusive false
+  :focusable "none"
+  :windowtype "normal"
+  (sidebar))
